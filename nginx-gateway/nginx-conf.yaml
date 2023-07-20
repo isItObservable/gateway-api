@@ -6,7 +6,7 @@ metadata:
 data:
   nginx.conf: |
     load_module /usr/lib/nginx/modules/ngx_http_js_module.so;
-
+    load_module /opt/opentelemetry-webserver-sdk/WebServerModule/Nginx/1.23.1/ngx_http_opentelemetry_module.so;
     
     events {}
 
@@ -22,9 +22,16 @@ data:
       server_names_hash_max_size 1024;
       variables_hash_bucket_size 512;
       variables_hash_max_size 1024;
+      log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+    
     
       server {
         listen 80;
+        server_name nginxgateway;
+        
+        
         location /nginx_status { 
             stub_status; 
         } 
@@ -37,13 +44,17 @@ metadata:
   name: nginx-otelconf
   namespace: nginx-gateway
 data:
-  opentelemetry_module.conf: |
-    NginxModuleEnabled ON;
-    NginxModuleOtelSpanExporter otlp;
-    NginxModuleOtelExporterEndpoint oteld-collector.default.svc.cluster.local:4317;
-    NginxModuleServiceName nginx-gateway;
-    NginxModuleServiceNamespace nginx-gateway;
-    NginxModuleServiceInstanceId DemoInstanceId;
-    NginxModuleResolveBackends ON;
-    NginxModuleTraceAsError ON;
+  otel-nginx.toml: |
+    exporter = "otlp"
+    processor = "batch"
+  
+    [exporters.otlp]
+  
+    [processors.batch]
+    max_queue_size = 2048
+    schedule_delay_millis = 5000
+    max_export_batch_size = 512
+  
+    [service]
+    name = "nginx-proxy" 
     

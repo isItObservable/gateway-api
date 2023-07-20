@@ -8,7 +8,7 @@ spec:
     - name: http
       port: 80
       protocol: HTTP
-      hostname: "oteldemo.IP_TO_REPLACE.nip.io"
+      hostname: "oteldemo.34.141.126.158.nip.io"
 ---
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: HTTPRoute

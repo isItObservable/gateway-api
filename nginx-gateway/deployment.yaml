@@ -21,6 +21,9 @@ spec:
       - name: nginx-conf
         configMap:
           name: nginx-conf
+      - name: opentelemetry-conf
+        configMap:
+          name: nginx-otelconf
       - name: var-lib-nginx
         emptyDir: { }
       - name: njs-modules
@@ -57,6 +60,9 @@ spec:
         - --gateway-ctlr-name=k8s-gateway.nginx.org/nginx-gateway-controller
         - --gatewayclass=nginx
       - image: hrexed/nginx-otel:0.1
+        env:
+          - name: OTEL_EXPORTER_OTLP_ENDPOINT
+            value: oteld-collector.default.svc.cluster.local:4317
         imagePullPolicy: Always
         name: nginx
         ports:
@@ -70,6 +76,9 @@ spec:
         - name: nginx-conf
           mountPath: /etc/nginx/nginx.conf
           subPath: nginx.conf
+        - name: opentelemetry-conf
+          mountPath: /etc/nginx/conf/otel-nginx.toml
+          subPath: otel-nginx.toml
         - name: var-lib-nginx
           mountPath: /var/lib/nginx
         - name: njs-modules
