@@ -1,0 +1,23 @@
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: Gateway
+metadata:
+  name: oteldemo-gateway
+spec:
+  gatewayClassName: nginx
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      hostname: "oteldemo.IP_TO_REPLACE.nip.io"
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: HTTPRoute
+metadata:
+  name: oteldemoroute
+spec:
+  parentRefs:
+    - name: oteldemo-gateway
+  rules:
+    - backendRefs:
+          - name: opentelemetry-demo-frontend
+            port: 8080
